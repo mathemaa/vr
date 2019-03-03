@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <main class="about-section">
+    <div class="container">
+
+      <h2> Visuelle Auswahl </h2>
+      <p> Status aller Räume </p>
+      <br>
+        
+      <body>
+
+      <svg viewbox="0 0 100 100" style="border: blue solid;">
+
+        <ellipse cx="24" cy="10" rx="22" ry="3" style="fill:purple" />
+  <ellipse cx="22" cy="7" rx="19" ry="2" style="fill:lime" />
+  <ellipse cx="21" cy="4.9" rx="17" ry="1.9" style="fill:yellow" />
+
+  <g transform="translate(100,100)">
+    <text id="TextElement" x="0" y="0" style="font-family:Verdana;font-size:24"> It's SVG!
+      <animateMotion path="M 0 0 L 100 100" dur="5s" fill="freeze" />
+    </text>
+  </g>
+
+      </svg>        
+
+      </body>
+      
+       
+    </div>
+  </main>
+{% endblock %}
