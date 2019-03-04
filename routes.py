@@ -1,4 +1,3 @@
-# Module werden importiert 
 from flask import Flask, request, redirect, render_template, session
 from database import db, users, projects, rooms, test, cur
 from werkzeug.utils import secure_filename
@@ -6,8 +5,9 @@ import psycopg2, csv
 import os
 
 
-
 app = Flask(__name__)
+
+#verschlüsselungscode für daten in sessions bei http Anfragen
 app.secret_key = os.urandom(12)
 
 
@@ -15,11 +15,12 @@ app.secret_key = os.urandom(12)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://localhost/project1'
 db.init_app(app)
 
-#ROUTING
+#routing
 @app.route("/loginpage")
 def session_start():
   return render_template("session.html")
 
+#TEST svg
 @app.route("/grafik")
 def svg_grafik():
   return render_template("grafik.html")
@@ -27,7 +28,7 @@ def svg_grafik():
 
 @app.route("/login", methods=['POST'])
 def login():
-
+    #aufrufen der methode connect zur Verbindung mit Postgres
     conn = psycopg2.connect(
     database="project1",
     user="postgres",
@@ -49,7 +50,8 @@ def login():
       )
 
     role = cur.fetchone()[0]
-
+    
+    #speicher der userid in der session
     session['userid'] = userid
 
     if role is '1':
@@ -61,23 +63,25 @@ def login():
     if role is '3':
       return redirect('/superuser')
 
+#admin kann projekte und nutzer hinzufügen    
 @app.route('/admin')
 def admin_session():
   all_projects = projects.query.all()
   all_users = users.query.all()
   return render_template('admin.html',  datas=all_projects, users_data=all_users)
 
+# Nutzer der seine Räume einsieht und status bearbeiten kann
 @app.route('/user')
 def user_session():
   if 'userid' not in session:
-    #TODO give a flash message
+    #TODO flash message
     return redirect('/loginpage')
   
-  #user stored in the session or abort
   userid = str(session['userid'])
 
   datas = rooms.query.filter(rooms.userid == userid).all()
   return render_template('user.html', datas=datas )
+
 
 @app.route("/final/edit/<int:id>")
 def edit(id):
@@ -85,11 +89,11 @@ def edit(id):
   room = zustand.query.filter_by(id=id).first()
   return render_template('editroom.html', datas=x, room=room)
 
+#übersicht aller räume + status
 @app.route('/superuser')
 def superuser_session():
   all_rooms = rooms.query.all()
   return render_template('superuser.html', datas=all_rooms )
-
 
 
 #CSV Daten importieren
@@ -104,19 +108,17 @@ def upload_file():
         return 'file uploaded successfully'
 
 
-
+#neuen nutzer anlegen, projekt zuordnen um ihm die räume zuzuordnen
 @app.route('/new_user', methods=['POST'])
 def add_user():
-        #verifying the role, than adding new user
+            #Nutzer mit Namen,pw,Rolle,Projekt anlegen
             role = request.form['role']
             newuser=users(request.form['username'], request.form['password'], request.form['role'], request.form['projectname'])
             db.session.add(newuser)
             db.session.flush()
-            #diff between sessions and cursor objects
             db.session.commit()
             userid = str(newuser.id)
 
-            #adding within this userid all the rooms to the test table
             conn = psycopg2.connect(
             database="project1",
             user="postgres",
