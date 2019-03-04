@@ -4,16 +4,6 @@ import psycopg2, csv
 db = SQLAlchemy()
 
 
-#aufrufen der methode connect zur Verbindung mit der PostgreSQL DB
-conn = psycopg2.connect(
-  database="project1",
-  user="postgres",
-  host="localhost",
-  port="5432"
-  )
-
-cur = conn.cursor()
-
 class test(db.Model):
   __tablename__ = 'test'
   id = db.Column(db.Integer, primary_key = True)
@@ -59,9 +49,3 @@ class rooms(db.Model):
     self.floor = floor 
     self.room = room 
     self.status = status
-
-
-
- 
-
-conn.close()
